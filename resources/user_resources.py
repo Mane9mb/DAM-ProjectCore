@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
 import messages
-from db.models import User, GenereEnum,RolEnum
+from db.models import User, GenereEnum, RolEnum, PositionEnum
 from hooks import requires_auth
 from resources.base_resources import DAMCoreResource
 from resources.schemas import SchemaRegisterUser
@@ -48,8 +48,40 @@ class ResourceGetUserProfile(DAMCoreResource):
 class ResourceGetUsers(DAMCoreResource):
     def on_get(self, req, resp, *args, **kwargs):
         super(ResourceGetUsers, self).on_get(req, resp, *args, **kwargs)
+
+        # Mirem si ens passen un argument opcional que sigui el rol
+        request_users_rol = req.get_param("rol", False)
+        if request_users_rol is not None:
+            request_users_rol = request_users_rol.upper()
+            if (len(request_users_rol) != 1) or (
+                    request_users_rol not in [i.value for i in RolEnum.__members__.values()]):
+                raise falcon.HTTPInvalidParam(messages.rol_invalid, "rol")
+            
+        # Mirem si ens passen un argument opcional que sigui la posicio
+        request_users_position = req.get_param("position", False)
+        if request_users_position is not None:
+            request_users_position = request_users_position.upper()
+            if (len(request_users_position) != 1) or (
+                    request_users_position not in [i.value for i in PositionEnum.__members__.values()]):
+                raise falcon.HTTPInvalidParam(messages.position_invalid, "position")
+
+        # Mirem si ens passen un argument opcional que sigui el club
+        request_users_club = req.get_param("club", False)
+
         response_users = list()
         aux_users = self.db_session.query(User)
+
+        if request_users_rol is not None:
+            aux_users = aux_users.filter(
+                    User.rol == RolEnum(request_users_rol))
+
+        if request_users_position is not None:
+            aux_users = aux_users.filter(
+                    User.position == PositionEnum(request_users_position))
+
+        if request_users_club is not None:
+            aux_users = aux_users.filter(
+                    User.club == request_users_club)
 
         if aux_users is not None:
             for current_user in aux_users.all():

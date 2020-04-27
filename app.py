@@ -44,7 +44,9 @@ application.add_route("/account/profile/update_profile_image", account_resources
 application.add_route("/users/register", user_resources.ResourceRegisterUser())
 #Entrar en un perfil publico
 application.add_route("/users/show/{username}", user_resources.ResourceGetUserProfile())
-application.add_route("/users/show/{prefsmash}", user_resources.ResourceGetUserProfile())
+
+# Aquesta no te sentit
+# application.add_route("/users/show/{prefsmash}", user_resources.ResourceGetUserProfile())
 
 #buscar usuarios  poner filtros
 application.add_route("/users", user_resources.ResourceGetUsers())
