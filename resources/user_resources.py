@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
 import messages
-from db.models import User, GenereEnum, RolEnum, PositionEnum
+from db.models import User, GenereEnum, RolEnum, PositionEnum, SmashEnum
 from hooks import requires_auth
 from resources.base_resources import DAMCoreResource
 from resources.schemas import SchemaRegisterUser
@@ -42,8 +42,6 @@ mylogger = logging.getLogger(__name__)
 #
 
 
-
-
 @falcon.before(requires_auth)
 class ResourceGetUsers(DAMCoreResource):
     def on_get(self, req, resp, *args, **kwargs):
@@ -56,7 +54,7 @@ class ResourceGetUsers(DAMCoreResource):
             if (len(request_users_rol) != 1) or (
                     request_users_rol not in [i.value for i in RolEnum.__members__.values()]):
                 raise falcon.HTTPInvalidParam(messages.rol_invalid, "rol")
-            
+
         # Mirem si ens passen un argument opcional que sigui la posicio
         request_users_position = req.get_param("position", False)
         if request_users_position is not None:
@@ -64,6 +62,14 @@ class ResourceGetUsers(DAMCoreResource):
             if (len(request_users_position) != 1) or (
                     request_users_position not in [i.value for i in PositionEnum.__members__.values()]):
                 raise falcon.HTTPInvalidParam(messages.position_invalid, "position")
+
+        # Mirem si ens passen un argument opcional que sigui smash
+        request_users_smash = req.get_param("prefsmash", False)
+        if request_users_smash is not None:
+            request_users_smash = request_users_smash.upper()
+            if (len(request_users_smash) != 1) or (
+                    request_users_smash not in [i.value for i in SmashEnum.__members__.values()]):
+                raise falcon.HTTPInvalidParam(messages.prefsmash_not_found, "prefsmash")
 
         # Mirem si ens passen un argument opcional que sigui el club
         request_users_club = req.get_param("club", False)
@@ -73,15 +79,19 @@ class ResourceGetUsers(DAMCoreResource):
 
         if request_users_rol is not None:
             aux_users = aux_users.filter(
-                    User.rol == RolEnum(request_users_rol))
+                User.rol == RolEnum(request_users_rol))
 
         if request_users_position is not None:
             aux_users = aux_users.filter(
-                    User.position == PositionEnum(request_users_position))
+                User.position == PositionEnum(request_users_position))
+
+        if request_users_smash is not None:
+            aux_users = aux_users.filter(
+                User.prefsmash == SmashEnum(request_users_smash))
 
         if request_users_club is not None:
             aux_users = aux_users.filter(
-                    User.club == request_users_club)
+                User.club == request_users_club)
 
         if aux_users is not None:
             for current_user in aux_users.all():
@@ -107,7 +117,6 @@ class ResourceRegisterUser(DAMCoreResource):
 
             except ValueError:
                 raise falcon.HTTPBadRequest(description=messages.rol_invalid)
-
 
             aux_user.username = req.media["username"]
             aux_user.password = req.media["password"]
