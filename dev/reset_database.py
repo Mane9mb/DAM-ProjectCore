@@ -53,7 +53,7 @@ if __name__ == "__main__":
         genere=GenereEnum.male,
         position=PositionEnum.left,
         matchname="Jordi",
-        prefsmash="R",
+        prefsmash="derechazo",
         club="ManresaTenis"
     )
     user_admin.set_password("DAMCoure")
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         genere=GenereEnum.male,
         position = PositionEnum.left,
         matchname = "Jordi",
-        prefsmash = "S",
+        prefsmash = "derechazo",
         club = "ManresaTenis"
 
     )
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         genere=GenereEnum.male,
         position=PositionEnum.left,
         matchname="Jordi",
-        prefsmash="V",
+        prefsmash="derechazo",
         club="ManresaTenis"
     )
     user_2.set_password("r45tgt")
