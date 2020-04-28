@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from resources import utils
 import settings
 import messages
-from db.models import User, UserToken, GenereEnum, RolEnum, PositionEnum, LicenseEnum
+from db.models import User, UserToken, GenereEnum, RolEnum, PositionEnum
 from hooks import requires_auth
 from resources.base_resources import DAMCoreResource
 from resources.schemas import SchemaUserToken, SchemaUpdateUser
