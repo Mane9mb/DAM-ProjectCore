@@ -1,5 +1,12 @@
-version: '3.3'
+version: '3.7'
 services:
+
+  static-file-server:
+    image: nginx:latest
+    ports:
+      - 8001:80
+    volumes:
+      - ../../static/.:/usr/share/nginx/html/static
 
   backend:
     build: "./backend"
@@ -8,7 +15,7 @@ services:
     environment:
       - DAMCore_DB_HOST=mysql_db_container
     volumes:
-      - ../../DAM-ProjectCore-master/.:/app
+      - ../../DAM-ProjectCore/.:/app
       - ../../static/.:/static
     tty: true
     links:

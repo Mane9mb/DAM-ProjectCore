@@ -17,7 +17,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy_i18n import make_translatable
-
+from falcon_multipart.middleware import MultipartMiddleware
 import messages
 from db.json_model import JSONModel
 import settings
@@ -26,6 +26,24 @@ mylogger = logging.getLogger(__name__)
 
 SQLAlchemyBase = declarative_base()
 make_translatable(options={"locales": settings.get_accepted_languages()})
+
+
+
+
+def _generate_media_url(class_instance, class_attibute_name, default_image=False):
+    class_base_url = urljoin(urljoin(urljoin("http://{}".format(settings.STATIC_HOSTNAME), settings.STATIC_URL),
+                                     settings.MEDIA_PREFIX),
+                             class_instance.__tablename__ + "/")
+    class_attribute = getattr(class_instance, class_attibute_name)
+    if class_attribute is not None:
+        return urljoin(urljoin(urljoin(urljoin(class_base_url, class_attribute), str(class_instance.id) + "/"),
+                               class_attibute_name + "/"), class_attribute)
+    else:
+        if default_image:
+            return urljoin(urljoin(class_base_url, class_attibute_name + "/"), settings.DEFAULT_IMAGE_NAME)
+        else:
+            return class_attribute
+
 
 
 def _generate_media_path(class_instance, class_attibute_name):
@@ -89,7 +107,7 @@ class User(SQLAlchemyBase, JSONModel):
     rol = Column(Enum(RolEnum), nullable=False)
     position = Column(Enum(PositionEnum))
     phone = Column(Unicode(50))
-    photo_path = Column(Unicode(255))
+    photo = Column(Unicode(255))
     license = Column(Enum(LicenseEnum))
     matchname = Column(Unicode(50))
     prefsmash = Column(Enum(SmashEnum))
@@ -104,7 +122,7 @@ class User(SQLAlchemyBase, JSONModel):
             "name": self.name,
             "email": self.email,
             "genere": self.genere.value,
-            "photo": self.photo_path,
+            "photo": self.photo,
             "rol": self.rol,
             "position": self.position,
             "matchname": self.matchname,
@@ -114,8 +132,12 @@ class User(SQLAlchemyBase, JSONModel):
         }
 
     @hybrid_property
-    def poster_path(self):
-        return _generate_media_path(self, "poster")
+    def photo_url(self):
+        return _generate_media_url(self, "photo", default_image=True)
+
+    @hybrid_property
+    def photo_path(self):
+        return _generate_media_path(self, "photo")
 
     @hybrid_method
     def set_password(self, password_string):
@@ -149,7 +171,7 @@ class User(SQLAlchemyBase, JSONModel):
             "rol": self.rol.value,
             "position": self.position.value,
             "phone": self.phone,
-            "photo": self.photo_path,
+            "photo": self.photo_url,
             "matchname": self.matchname,
             "timeplay": self.timeplay,
             "prefsmash": self.prefsmash,

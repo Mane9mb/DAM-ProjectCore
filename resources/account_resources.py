@@ -20,6 +20,7 @@ from settings import STATIC_DIRECTORY
 
 mylogger = logging.getLogger(__name__)
 
+
 @falcon.before(requires_auth)
 class ResourceAccountUpdateProfileImage(DAMCoreResource):
     def on_post(self, req, resp, *args, **kwargs):
@@ -29,7 +30,8 @@ class ResourceAccountUpdateProfileImage(DAMCoreResource):
         # Get the user from the token
         current_user = req.context["auth_user"]
         resource_path = current_user.photo_path
-
+        print("TAG"+current_user.photo_path)
+        print(resource_path)
         # Get the file from form
         incoming_file = req.get_param("image_file")
 
