@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from resources import utils
 import settings
 import messages
-from db.models import User, UserToken, GenereEnum, RolEnum, PositionEnum, LicenseEnum
+from db.models import User, UserToken, GenereEnum, RolEnum, PositionEnum, LicenseEnum, SmashEnum
 from hooks import requires_auth
 from resources.base_resources import DAMCoreResource
 from resources.schemas import SchemaUserToken, SchemaUpdateUser
@@ -135,6 +135,13 @@ class ResourceAccountUpdateUserProfile(DAMCoreResource):
                     value = PositionEnum(value.upper())
                 except ValueError:
                     raise falcon.HTTPBadRequest(description=messages.position_invalid)
+
+            if key == "prefsmash":
+                try:
+                    value = SmashEnum(value.upper())
+                except ValueError:
+                    raise falcon.HTTPBadRequest(description=messages.smash_invalid)
+
 
             try:
                 getattr(current_user,key)

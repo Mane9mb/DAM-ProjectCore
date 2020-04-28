@@ -28,11 +28,11 @@ SQLAlchemyBase = declarative_base()
 make_translatable(options={"locales": settings.get_accepted_languages()})
 
 
-
 def _generate_media_path(class_instance, class_attibute_name):
     class_path = "/{0}{1}{2}/{3}/{4}/".format(settings.STATIC_URL, settings.MEDIA_PREFIX, class_instance.__tablename__,
                                               str(class_instance.id), class_attibute_name)
     return class_path
+
 
 class RolEnum(enum.Enum):
     owner = "O"
@@ -42,6 +42,7 @@ class RolEnum(enum.Enum):
 class GenereEnum(enum.Enum):
     male = "M"
     female = "F"
+
 
 class PositionEnum(enum.Enum):
     left = "L"
@@ -53,12 +54,18 @@ class LicenseEnum(enum.Enum):
     dont = "N"
 
 
+class SmashEnum(enum, Enum):
+    Saque = "S"
+    Derecha = "R"
+    Reves = "L"
+    Globo = "G"
+    Cortada = "C"
+    Mate = "M"
+    Volea = "V"
+
 
 class UserToken(SQLAlchemyBase):
     __tablename__ = "users_tokens"
-
-
-
 
     id = Column(Integer, primary_key=True)
     token = Column(Unicode(50), nullable=False, unique=True)
@@ -81,13 +88,13 @@ class User(SQLAlchemyBase, JSONModel):
     genere = Column(Enum(GenereEnum), nullable=False)
     rol = Column(Enum(RolEnum), nullable=False)
     position = Column(Enum(PositionEnum))
-    phone= Column(Unicode(50))
+    phone = Column(Unicode(50))
     photo_path = Column(Unicode(255))
     license = Column(Enum(LicenseEnum))
     matchname = Column(Unicode(50))
-    prefsmash = Column(Unicode(50))
+    prefsmash = Column(Enum(SmashEnum))
     club = Column(Unicode(50))
-    timeplay= Column(Unicode(50))
+    timeplay = Column(Unicode(50))
 
     @hybrid_property
     def public_profile(self):
@@ -102,14 +109,13 @@ class User(SQLAlchemyBase, JSONModel):
             "position": self.position,
             "matchname": self.matchname,
             "timeplay": self.timeplay,
-            "prefsmash":self.prefsmash,
+            "prefsmash": self.prefsmash,
             "club": self.club
         }
 
     @hybrid_property
     def poster_path(self):
         return _generate_media_path(self, "poster")
-
 
     @hybrid_method
     def set_password(self, password_string):
@@ -141,7 +147,7 @@ class User(SQLAlchemyBase, JSONModel):
                 settings.DATE_DEFAULT_FORMAT) if self.birthdate is not None else self.birthdate,
             "genere": self.genere.value,
             "rol": self.rol.value,
-            "position":self.position.value,
+            "position": self.position.value,
             "phone": self.phone,
             "photo": self.photo_path,
             "matchname": self.matchname,
@@ -149,6 +155,5 @@ class User(SQLAlchemyBase, JSONModel):
             "prefsmash": self.prefsmash,
             "club": self.club,
             "license": self.license
-
 
         }
