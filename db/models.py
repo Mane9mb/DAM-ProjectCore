@@ -43,8 +43,6 @@ def _generate_media_url(class_instance, class_attibute_name, default_image=False
             return class_attribute
 
 
-
-
 def _generate_media_path(class_instance, class_attibute_name):
     class_path = "/{0}{1}{2}/{3}/{4}/".format(settings.STATIC_URL, settings.MEDIA_PREFIX, class_instance.__tablename__,
                                               str(class_instance.id), class_attibute_name)
@@ -109,11 +107,9 @@ class User(SQLAlchemyBase, JSONModel):
     position = Column(Enum(PositionEnum))
     phone = Column(Unicode(50))
     photo = Column(Unicode(255))
-    phone= Column(Unicode(50))
-    photo_path = Column(Unicode(255))
     license = Column(Enum(LicenseEnum))
     matchname = Column(Unicode(50))
-    prefsmash = Column(Unicode(50))
+    prefsmash = Column(Enum(SmashEnum))
     club = Column(Unicode(50))
     timeplay= Column(Unicode(50))
 

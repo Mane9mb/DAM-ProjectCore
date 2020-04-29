@@ -140,9 +140,9 @@ class ResourceAccountUpdateUserProfile(DAMCoreResource):
 
             if key == "prefsmash":
                 try:
-                     value = SmashEnum(value.upper())
+                    value = SmashEnum(value.upper())
                 except ValueError:
-                     raise falcon.HTTPBadRequest(description=messages.smash_invalid)
+                    raise falcon.HTTPBadRequest(description=messages.smash_invalid)
 
 
             try:
