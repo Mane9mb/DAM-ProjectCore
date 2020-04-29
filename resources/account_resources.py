@@ -144,6 +144,7 @@ class ResourceAccountUpdateUserProfile(DAMCoreResource):
                 except ValueError:
                      raise falcon.HTTPBadRequest(description=messages.smash_invalid)
 
+
             try:
                 getattr(current_user,key)
                 if (key != "username"):
