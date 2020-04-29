@@ -72,14 +72,14 @@ class LicenseEnum(enum.Enum):
     dont = "N"
 
 
-class SmashEnum(enum, Enum):
-    Saque = "S"
-    Derecha = "R"
-    Reves = "L"
-    Globo = "G"
-    Cortada = "C"
-    Mate = "M"
-    Volea = "V"
+class SmashEnum(enum.Enum):
+    saque = "S"
+    derecha = "R"
+    reves = "L"
+    globo = "G"
+    cortada = "C"
+    mate = "M"
+    volea = "V"
 
 
 class UserToken(SQLAlchemyBase):
@@ -124,10 +124,10 @@ class User(SQLAlchemyBase, JSONModel):
             "genere": self.genere.value,
             "photo": self.photo,
             "rol": self.rol,
-            "position": self.position,
+            "position": self.position.value,
             "matchname": self.matchname,
             "timeplay": self.timeplay,
-            "prefsmash": self.prefsmash,
+            "prefsmash": self.prefsmash.value,
             "club": self.club
         }
 
@@ -174,7 +174,7 @@ class User(SQLAlchemyBase, JSONModel):
             "photo": self.photo_url,
             "matchname": self.matchname,
             "timeplay": self.timeplay,
-            "prefsmash": self.prefsmash,
+            "prefsmash": self.prefsmash.value,
             "club": self.club,
             "license": self.license
 

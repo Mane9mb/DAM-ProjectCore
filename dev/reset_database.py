@@ -9,7 +9,7 @@ from sqlalchemy.sql import text
 
 import db
 import settings
-from db.models import SQLAlchemyBase, User, GenereEnum, UserToken, RolEnum, PositionEnum
+from db.models import SQLAlchemyBase, User, GenereEnum, UserToken, RolEnum, PositionEnum, SmashEnum
 from settings import DEFAULT_LANGUAGE
 
 # LOGGING
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         genere=GenereEnum.male,
         position=PositionEnum.left,
         matchname="Jordi",
-        prefsmash="R",
+        prefsmash= SmashEnum.derecha,
         club="ManresaTenis"
     )
     user_admin.set_password("DAMCoure")
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         genere=GenereEnum.male,
         position = PositionEnum.left,
         matchname = "Jordi",
-        prefsmash = "S",
+        prefsmash = SmashEnum.cortada,
         club = "ManresaTenis"
 
     )
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         genere=GenereEnum.male,
         position=PositionEnum.left,
         matchname="Jordi",
-        prefsmash="V",
+        prefsmash= SmashEnum.globo,
         club="ManresaTenis"
     )
     user_2.set_password("r45tgt")

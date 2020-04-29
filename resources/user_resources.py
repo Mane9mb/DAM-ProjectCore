@@ -64,6 +64,7 @@ class ResourceGetUsers(DAMCoreResource):
                 raise falcon.HTTPInvalidParam(messages.position_invalid, "position")
 
         # Mirem si ens passen un argument opcional que sigui smash
+
         request_users_smash = req.get_param("prefsmash", False)
         if request_users_smash is not None:
             request_users_smash = request_users_smash.upper()
