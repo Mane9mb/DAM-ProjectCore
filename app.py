@@ -43,7 +43,7 @@ application.add_route("/account/update_profile", account_resources.ResourceAccou
 application.add_route("/account/profile/update_profile_image", account_resources.ResourceAccountUpdateProfileImage())
 application.add_route("/users/register", user_resources.ResourceRegisterUser())
 #Entrar en un perfil publico
-#application.add_route("/users/show/{username}", user_resources.ResourceGetUserProfile())
+application.add_route("/users/show/{username}", user_resources.ResourceGetUserProfile())
 
 
 

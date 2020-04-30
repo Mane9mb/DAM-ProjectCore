@@ -69,7 +69,7 @@ if __name__ == "__main__":
         rol=RolEnum.player,
         birthdate=datetime.datetime(1989, 1, 1),
         genere=GenereEnum.male,
-        position = PositionEnum.left,
+        position = PositionEnum.rigth,
         matchname = "Jordi",
         prefsmash = SmashEnum.cortada,
         club = "ManresaTenis"

@@ -122,7 +122,7 @@ class User(SQLAlchemyBase, JSONModel):
             "email": self.email,
             "genere": self.genere.value,
             "photo": self.photo,
-            "rol": self.rol,
+            "rol": self.rol.value,
             "position": self.position.value,
             "matchname": self.matchname,
             "timeplay": self.timeplay,
