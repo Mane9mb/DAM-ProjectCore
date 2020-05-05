@@ -142,7 +142,7 @@ class ResourceAccountUpdateUserProfile(DAMCoreResource):
                 try:
                     value = SmashEnum(value.upper())
                 except ValueError:
-                    raise falcon.HTTPBadRequest(description=messages.smash_invalid)
+                    raise falcon.HTTPBadRequest(description="messages.smash_invalid")
 
 
             try:
@@ -152,6 +152,6 @@ class ResourceAccountUpdateUserProfile(DAMCoreResource):
             except AttributeError:
                 raise falcon.HTTPBadRequest(description=messages.parameters_invalid)
 
-
+        self.db_session.add(current_user)
         self.db_session.commit()
         resp.status = falcon.HTTP_200
