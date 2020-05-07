@@ -7,7 +7,7 @@ import falcon
 
 import messages
 import middlewares
-from resources import account_resources, common_resources, user_resources
+from resources import account_resources, common_resources, user_resources, tournament_resources
 from settings import configure_logging
 from falcon_multipart.middleware import MultipartMiddleware
 
@@ -47,10 +47,10 @@ application.add_route("/users/show/{username}", user_resources.ResourceGetUserPr
 
 # Tornar per defecte tots el torneig -> filtres (proximitat, de stauts, de tipi...) Tasca semblant a user ResourceGetUsers
 # TODO: @Xexi_11
-application.add_route("/tournamets/list", account_resources.ResourceAccountUserProfile())
+application.add_route("/tournamets/list", tournament_resources.ResourceGetTournaments())
 # TODO: @Xexi_11
 # resources.ResourceGetUserProfile())
-application.add_route("/tournaments/show/{id}", user_resources.ResourceGetUserProfile())
+application.add_route("/tournaments/show/{id}", tournament_resources.ResourceGetTournament())
 
 # TODO: @Clarajsanchez
 # Ha de tancar la vista RV dels jugadors semblant a la foto!

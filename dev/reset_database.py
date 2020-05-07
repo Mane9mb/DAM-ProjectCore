@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     cat_2 = Category(
         genere=TournamentGenereEnum.male,
-        age=AgeCategoriesTypeEnum.seniors
+        age=AgeCategoriesTypeEnum.juniors
     )
 
     cat_3 = Category(

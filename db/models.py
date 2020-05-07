@@ -93,7 +93,7 @@ class TournamentPrivacyTypeEnum(enum.Enum):
 
 
 class AgeCategoriesTypeEnum(enum.Enum):
-    menors = "M"
+    juniors = "M"
     seniors = "S"
 
 class TournamentStatusEnum(enum.Enum):
@@ -142,7 +142,15 @@ class Category(SQLAlchemyBase, JSONModel):
                                          secondary=TournamentCategoriesAssociation,
                                          back_populates="categories")
 
+    @hybrid_property
+    def json_model(self):
+        return {
+            "id": self.id,
+            "genere": self.genere.value,
+            "age": self.age.value,
+            "level": self.level,
 
+        }
 
 class Facility(SQLAlchemyBase, JSONModel):
     __tablename__ = "facilities"
@@ -229,7 +237,7 @@ class Tournament(SQLAlchemyBase, JSONModel):
                 "start_date": self.created_at.strftime(settings.DATETIME_DEFAULT_FORMAT),
                 "status": self.status.value,
                 "type": self.type.value,
-                "facility": self.facility.to_json_model(id="id", name="name", province="province", town="town",
+                "facility": self.facility.to_json_model(id="id", name="name", provincia="provincia", town="town",
                                                     latitude="latitude", longitude="longitude"),
                 "categories": [category.json_model for category in self.categories],
          }
