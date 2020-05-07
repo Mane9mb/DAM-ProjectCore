@@ -6,13 +6,14 @@ import datetime
 import enum
 import logging
 import os
+from _operator import and_
 from builtins import getattr
 from urllib.parse import urljoin
 
 import falcon
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy import Column, Date, DateTime, Enum, ForeignKey, Integer, Unicode, \
-    UnicodeText
+    UnicodeText, Float, Table, case, type_coerce
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import relationship
@@ -57,6 +58,11 @@ class GenereEnum(enum.Enum):
     male = "M"
     female = "F"
 
+class TournamentGenereEnum(enum.Enum):
+    male = "H"
+    female = "F"
+    mixt = "X"
+
 class PositionEnum(enum.Enum):
     left = "L"
     rigth = "R"
@@ -76,18 +82,164 @@ class SmashEnum(enum.Enum):
     mate = "M"
     volea = "V"
 
+class TournamentTypeEnum(enum.Enum):
+    americana = "A"
+    league = "L"
+    draft = "D"
+
+class TournamentPrivacyTypeEnum(enum.Enum):
+    public = "O"
+    privat = "C"
+
+
+class AgeCategoriesTypeEnum(enum.Enum):
+    menors = "M"
+    seniors = "S"
+
+class TournamentStatusEnum(enum.Enum):
+    open = "O"
+    closed = "C"
+    playing = "G"
+
+
+
+
+TournamentInscriptionsAssociation = Table("tournament_inscriptions_association",
+SQLAlchemyBase.metadata,
+Column("tournament_id", Integer,ForeignKey("tournaments.id",
+        onupdate="CASCADE", ondelete="CASCADE"), nullable=False),
+Column("users_id", Integer,
+       ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+       nullable=False)
+)
+
+TournamentCategoriesAssociation = Table("tournament_categories_association",
+SQLAlchemyBase.metadata,
+Column("tournament_id", Integer, ForeignKey("tournaments.id",
+        onupdate="CASCADE", ondelete="CASCADE"), nullable=False),
+Column("category_id", Integer,
+       ForeignKey("categories.id", onupdate="CASCADE", ondelete="CASCADE"),
+       nullable=False)
+)
 
 
 class UserToken(SQLAlchemyBase):
     __tablename__ = "users_tokens"
 
-
-
-
     id = Column(Integer, primary_key=True)
     token = Column(Unicode(50), nullable=False, unique=True)
     user_id = Column(Integer, ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     user = relationship("User", back_populates="tokens")
+
+class Category(SQLAlchemyBase, JSONModel):
+    __tablename__ = "categories"
+    id = Column(Integer, primary_key=True)
+    genere = Column(Enum(TournamentGenereEnum), nullable=False)
+    age = Column(Enum(AgeCategoriesTypeEnum), nullable=False)
+    level = Column(Integer)
+
+    tournament_categories = relationship("Tournament",
+                                         secondary=TournamentCategoriesAssociation,
+                                         back_populates="categories")
+
+
+
+class Facility(SQLAlchemyBase, JSONModel):
+    __tablename__ = "facilities"
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode(255), nullable=False)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    address = Column(Unicode(255))
+    postal_code = Column(Unicode(12))
+    town = Column(Unicode(12))
+    provincia = Column(Unicode(12))
+    phone = Column(Unicode(50))
+    email = Column(Unicode(255))
+    web = Column(Unicode(255))
+
+    tournaments = relationship("Tournament", back_populates="facility")
+
+
+class Tournament(SQLAlchemyBase, JSONModel):
+    __tablename__ = "tournaments"
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    edited_at = Column(DateTime, default=None)
+    name = Column(Unicode(255), nullable=False)
+    start_date = Column(DateTime, nullable=False)
+    finish_date = Column(DateTime, nullable=False)
+    start_register_date = Column(DateTime, nullable=False)
+    finish_register_date = Column(DateTime, nullable=False)
+    limit_couples = Column(Integer)
+    inscription_type = Column(Enum(TournamentPrivacyTypeEnum)) # Public o privat (requeix codi d'invitació)
+    type = Column(Enum(TournamentTypeEnum), nullable=False)
+    price_1 = Column(Float, nullable=False)
+    price_2 = Column(Float, nullable=False)
+
+    description = Column(UnicodeText)
+    poster = Column(Unicode(255))
+
+    # Relació (User-Tournament) per tenir l'organitzador.
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner = relationship("User", back_populates="tournament_owner")
+
+    # Relació inscripcions
+    inscriptions = relationship ("User", secondary=TournamentInscriptionsAssociation, back_populates="tournament_inscriptions")
+
+    # Relació (Facility-Tournament) per tenir el club
+    facility_id = Column(Integer, ForeignKey("facilities.id"), nullable=False)
+    facility = relationship("Facility", back_populates="tournaments")
+
+    # Categories
+    categories = relationship("Category",
+                               secondary=TournamentCategoriesAssociation,
+                               back_populates="tournament_categories")
+
+    @hybrid_property
+    def status(self):
+        current_datetime = datetime.datetime.now()
+        if current_datetime < self.finish_register_date:
+            return TournamentStatusEnum.open
+        elif (current_datetime > self.finish_register_date) and (current_datetime < self.finish_date):
+            return TournamentStatusEnum.playing
+        else:
+            return TournamentStatusEnum.closed
+
+    @status.expression
+    def status(cls):
+        current_datetime = datetime.datetime.now()
+        return case(
+            [
+                (current_datetime < cls.finish_register_date,
+                 type_coerce(TournamentStatusEnum.open, Enum(TournamentStatusEnum))),
+                (and_(current_datetime > cls.finish_register_date, current_datetime < cls.finish_date),
+                 type_coerce(TournamentStatusEnum.in_game, Enum(TournamentStatusEnum)))
+            ],
+            else_=type_coerce(TournamentStatusEnum.closed, Enum(TournamentStatusEnum))
+        )
+
+
+    @hybrid_property
+    def json_model(self):
+        return {
+                "created_at": self.created_at.strftime(settings.DATETIME_DEFAULT_FORMAT),
+                "name": self.name,
+                "inscription_type" : self.inscription_type.value,
+                "start_date": self.created_at.strftime(settings.DATETIME_DEFAULT_FORMAT),
+                "status": self.status.value,
+                "type": self.type.value,
+                "facility": self.facility.to_json_model(id="id", name="name", province="province", town="town",
+                                                    latitude="latitude", longitude="longitude"),
+                "categories": [category.json_model for category in self.categories],
+         }
+
+    @hybrid_property
+    def poster_url(self):
+        return _generate_media_url(self, "poster", default_image=True)
+
+
+
 
 
 class User(SQLAlchemyBase, JSONModel):
@@ -112,6 +264,9 @@ class User(SQLAlchemyBase, JSONModel):
     prefsmash = Column(Enum(SmashEnum))
     club = Column(Unicode(50))
     timeplay= Column(Unicode(50))
+
+    tournament_owner = relationship("Tournament", back_populates="owner")
+    tournament_inscriptions = relationship("Tournament", back_populates="inscriptions")
 
     @hybrid_property
     def public_profile(self):
