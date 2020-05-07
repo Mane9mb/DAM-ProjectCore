@@ -45,6 +45,24 @@ application.add_route("/users/register", user_resources.ResourceRegisterUser())
 #Entrar en un perfil publico
 application.add_route("/users/show/{username}", user_resources.ResourceGetUserProfile())
 
+# Tornar per defecte tots el torneig -> filtres (proximitat, de stauts, de tipi...) Tasca semblant a user ResourceGetUsers
+# TODO: @Xexi_11
+application.add_route("/tournamets/list", account_resources.ResourceAccountUserProfile())
+# TODO: @Xexi_11
+# resources.ResourceGetUserProfile())
+application.add_route("/tournaments/show/{id}", user_resources.ResourceGetUserProfile())
+
+# TODO: @Clarajsanchez
+# Ha de tancar la vista RV dels jugadors semblant a la foto!
+#  level (Integer)
+#  wins (Integer)
+#  loses (Integer)
+
+# TODO: @Carlos
+# Vista para los detalles del torneo -> Copia barata de Padel Manager
+
+# TODO: @Manel
+# Recycler view de torneig amb la row de cada torneig
 
 
 #buscar usuarios  poner filtros
