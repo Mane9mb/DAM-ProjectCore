@@ -97,7 +97,3 @@ class ResourceGetTournaments(DAMCoreResource):
         resp.status = falcon.HTTP_200
 
 
-
-
-##QUan pasem mes dun filtre al hora
-##
