@@ -55,7 +55,7 @@ if __name__ == "__main__":
         position=PositionEnum.left,
         matchname="Jordi",
         prefsmash= SmashEnum.derecha,
-        club="ManresaTenis"
+        club="Club Tennis Manresa"
     )
     user_admin.set_password("DAMCoure")
 
@@ -64,8 +64,8 @@ if __name__ == "__main__":
         created_at=datetime.datetime(2020, 1, 1, 0, 1, 1),
         username="sergialsina",
         email="sergia@gmail.com",
-        name="sergi",
-        surname="alsina",
+        name="Sergi",
+        surname="Alsina",
         phone="63812910",
         rol=RolEnum.player,
         birthdate=datetime.datetime(1989, 1, 1),
@@ -73,10 +73,10 @@ if __name__ == "__main__":
         position=PositionEnum.rigth,
         matchname="Jordi",
         prefsmash=SmashEnum.cortada,
-        club="ManresaTenis"
+        club="Club Padel Inventat"
 
     )
-    player_1.set_password("a1s2d3f4")
+    player_1.set_password("000000")
     player_1.tokens.append(UserToken(token="656e50e154865a5dc469b80437ed2f963b8f58c8857b66c9bf"))
 
     # noinspection PyArgumentList
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         position=PositionEnum.left,
         matchname="Jordi",
         prefsmash= SmashEnum.globo,
-        club="ManresaTenis"
+        club="Club Tennis Manresa"
     )
     user_2.set_password("r45tgt")
     user_2.tokens.append(UserToken(token="0a821f8ce58965eadc5ef884cf6f7ad99e0e7f58f429f584b2"))
@@ -137,14 +137,22 @@ if __name__ == "__main__":
     )
 
     facility_2 = Facility(
-    name = "Club Tennis Inventat",
+    name = "Club Padel Inventat",
     latitude = 42.748809,
     longitude = 1.844407,
     provincia = "Barcelona"
     )
 
+    facility_3 = Facility(
+    name="Infinit Igualada",
+    latitude=41.584437,
+    longitude=1.603788,
+    provincia="Barcelona"
+    )
+
     db_session.add(facility_1)
     db_session.add(facility_2)
+    db_session.add(facility_3)
     db_session.commit()
 # -------------------- CREATE TOURNAMENTS --------------------
     mylogger.info("Creating default tournaments...")
@@ -178,13 +186,28 @@ if __name__ == "__main__":
         price_2 = 8,
         type = TournamentTypeEnum.draft,
         inscription_type = TournamentPrivacyTypeEnum.public,
-        facility_id = 1,
+        facility_id = 2,
         categories = [cat_1,cat_2,cat_3],
         owner_id=1
     )
-
+    tournament_3 = Tournament(
+        created_at=datetime.datetime(2020, 1, 2, 0, 1, 1),
+        name="Torneig de la UDL",
+        start_register_date=datetime.datetime.now() + (week_period * 1),
+        finish_register_date=datetime.datetime.now() + (week_period * 7),
+        start_date=datetime.datetime.now() + (week_period * 2),
+        finish_date=datetime.datetime.now() + (week_period * 6),
+        price_1=10,
+        price_2=8,
+        type=TournamentTypeEnum.americana,
+        inscription_type=TournamentPrivacyTypeEnum.privat,
+        facility_id=3,
+        categories=[cat_1],
+        owner_id=2
+    )
     db_session.add(tournament_1)
     db_session.add(tournament_2)
+    db_session.add(tournament_3)
     db_session.commit()
 
     db_session.close()
