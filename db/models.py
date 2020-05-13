@@ -231,6 +231,11 @@ class Tournament(SQLAlchemyBase, JSONModel):
     @hybrid_property
     def json_model(self):
         return {
+                "id": self.id,
+                "price_1": self.price_1,
+                "finish_date": self.finish_date.strftime(settings.DATETIME_DEFAULT_FORMAT),
+                "finish_register_date":self.finish_register_date.strftime(settings.DATETIME_DEFAULT_FORMAT),
+                "description":self.description,
                 "created_at": self.created_at.strftime(settings.DATETIME_DEFAULT_FORMAT),
                 "name": self.name,
                 "inscription_type" : self.inscription_type.value,
