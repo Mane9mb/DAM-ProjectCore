@@ -4,13 +4,15 @@
 import datetime
 import logging
 import os
+import random
 
 from sqlalchemy.sql import text
 
 import db
 import settings
-from db.models import SQLAlchemyBase, User, GenereEnum, UserToken, RolEnum, PositionEnum, SmashEnum, TournamentTypeEnum,\
-    TournamentPrivacyTypeEnum, Facility, TournamentGenereEnum, AgeCategoriesTypeEnum, Category, Tournament
+from db.models import SQLAlchemyBase, User, GenereEnum, UserToken, RolEnum, PositionEnum, SmashEnum, TournamentTypeEnum, \
+    TournamentPrivacyTypeEnum, Facility, TournamentGenereEnum, AgeCategoriesTypeEnum, Category, Tournament, Couple, \
+    Round, Match
 from settings import DEFAULT_LANGUAGE
 
 # LOGGING
@@ -43,6 +45,26 @@ if __name__ == "__main__":
     # -------------------- CREATE USERS --------------------
     mylogger.info("Creating default users...")
     # noinspection PyArgumentList
+    clubs = ["Club Tennis Manresa", "Club Padel Igualada", "Pistes Municipals Igualada", "Club Padel Odena",
+             "Club Padel Pro"]
+    words = ["pro", "demon", "tiger", "king", "cobra", "awesome", "moon", "sun", "vibora", "padel", "shoot", "power"]
+    for p in range(1, 33):
+        player = User(
+            username="player" + str(p),
+            email="player" + str(p) + "@gmail.com",
+            name="player",
+            surname=str(p),
+            phone="660626960",
+            rol=RolEnum.player,
+            position=random.choice(list(PositionEnum)),
+            genere=random.choice(list(GenereEnum)),
+            matchname=random.choice(words) + random.choice(words),
+            prefsmash=random.choice(list(SmashEnum)),
+            club=random.choice(clubs)
+            )
+        player.set_password("000000")
+        db_session.add(player)
+    db_session.commit()
     user_admin = User(
         created_at=datetime.datetime(2020, 1, 1, 0, 1, 1),
         username="admin",
@@ -212,5 +234,40 @@ if __name__ == "__main__":
     db_session.add(tournament_2)
     db_session.add(tournament_3)
     db_session.commit()
+    mylogger.info("Creating default couples...")
 
+    for p in range(1, 33, 2):
+        couple = Couple(
+            player1_id=p,
+            player2_id=p + 1
+        )
+        db_session.add(couple)
+    db_session.commit()
+    mylogger.info("Creating default matches for Round 1 del Torneig de la UDL...")
+
+    set_results = ["7/6", "6/0", "6/3", "6/4", "6/2", "6/3"]
+
+    m = 0
+    matches = []
+    for p in range(1, 33, 4):
+        match = Match(
+            couple1_player1_id=p,
+            couple1_player2_id=p + 1,
+            couple2_player1_id=p + 2,
+            couple2_player2_id=p + 3,
+            set1=random.choice(set_results),
+            set2=random.choice(set_results)
+        )
+        db_session.add(match)
+        matches.append(match)
+
+    round = Round(
+        category_id=1,
+        tournament_id=3,
+        id=1,
+        matches=matches
+    )
+
+    db_session.add(round)
+    db_session.commit()
     db_session.close()

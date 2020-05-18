@@ -101,8 +101,73 @@ class TournamentStatusEnum(enum.Enum):
     closed = "C"
     playing = "G"
 
+RoundMatchesAssociation = Table("round_matches_association",
+SQLAlchemyBase.metadata,
+Column("round_id", Integer, ForeignKey("rounds.id",
+onupdate="CASCADE", ondelete="CASCADE"), nullable=False),
+Column("match_id", Integer,
+ForeignKey("matches.id", onupdate="CASCADE", ondelete="CASCADE"),
+nullable=False)
+)
+class Round(SQLAlchemyBase, JSONModel):
+    __tablename__ = "rounds"
+    id = Column(Integer, nullable=False, primary_key=True)
+    name = Column(UnicodeText, nullable=True)
+    category_id = Column(Integer, ForeignKey('categories.id'), primary_key=True)
+    tournament_id = Column(Integer, ForeignKey("tournaments.id"), nullable=False)
+    tournament = relationship("Tournament", back_populates="rounds")
+    matches = relationship("Match",
+                           secondary=RoundMatchesAssociation,
+                           back_populates="round")
 
+    @hybrid_property
+    def json_model(self):
+        return {
+            "round_id": self.id,
+            "category_id": self.category_id,
+            "matches": [match.json_model for match in self.matches],
+        }
 
+class Couple(SQLAlchemyBase, JSONModel):
+    __tablename__ = "couples"
+    player1_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    player2_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+
+    wins = Column(Integer, default=0, nullable=True)
+    losses = Column(Integer, default=0, nullable=True)
+    player1 = relationship("User", foreign_keys=([player1_id]))
+    player2 = relationship("User", foreign_keys=([player2_id]))
+
+class Match(SQLAlchemyBase, JSONModel):
+    __tablename__ = "matches"
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
+    couple1_player1_id = Column(Integer, ForeignKey('users.id'))
+    couple1_player2_id = Column(Integer, ForeignKey('users.id'))
+    couple2_player1_id = Column(Integer, ForeignKey('users.id'))
+    couple2_player2_id = Column(Integer, ForeignKey('users.id'))
+    set1 = Column(Unicode(12), default="0/0", nullable=True)
+    set2 = Column(Unicode(12), default="0/0", nullable=True)
+    set3 = Column(Unicode(12), default="0/0", nullable=True)
+    couple1_p1 = relationship("User", foreign_keys=([couple1_player1_id]))
+    couple1_p2 = relationship("User", foreign_keys=([couple1_player2_id]))
+    couple2_p1 = relationship("User", foreign_keys=([couple2_player1_id]))
+    couple2_p2 = relationship("User", foreign_keys=([couple2_player2_id]))
+
+    round = relationship("Round",
+                         secondary=RoundMatchesAssociation,
+                         back_populates="matches")
+
+    @hybrid_property
+    def json_model(self):
+      return {
+            "couple1_player1": self.couple1_p1.to_json_model(id="id", name="name", surname="surname"),
+            "couple1_player2": self.couple1_p2.to_json_model(id="id", name="name", surname="surname"),
+            "couple2_player1": self.couple2_p1.to_json_model(id="id", name="name", surname="surname"),
+            "couple2_player2": self.couple2_p2.to_json_model(id="id", name="name", surname="surname"),
+            "set1": self.set1,
+            "set2": self.set2,
+            "set3": self.set3
+        }
 
 TournamentInscriptionsAssociation = Table("tournament_inscriptions_association",
 SQLAlchemyBase.metadata,
@@ -203,6 +268,8 @@ class Tournament(SQLAlchemyBase, JSONModel):
     categories = relationship("Category",
                                secondary=TournamentCategoriesAssociation,
                                back_populates="tournament_categories")
+    #Relació rondes
+    rounds = relationship("Round", back_populates="tournament")
 
     @hybrid_property
     def status(self):
@@ -234,8 +301,8 @@ class Tournament(SQLAlchemyBase, JSONModel):
                 "id": self.id,
                 "price_1": self.price_1,
                 "finish_date": self.finish_date.strftime(settings.DATETIME_DEFAULT_FORMAT),
-                "finish_register_date":self.finish_register_date.strftime(settings.DATETIME_DEFAULT_FORMAT),
-                "description":self.description,
+                "finish_register_date": self.finish_register_date.strftime(settings.DATETIME_DEFAULT_FORMAT),
+                "description": self.description,
                 "created_at": self.created_at.strftime(settings.DATETIME_DEFAULT_FORMAT),
                 "name": self.name,
                 "inscription_type" : self.inscription_type.value,
@@ -245,6 +312,7 @@ class Tournament(SQLAlchemyBase, JSONModel):
                 "facility": self.facility.to_json_model(id="id", name="name", provincia="provincia", town="town",
                                                     latitude="latitude", longitude="longitude"),
                 "categories": [category.json_model for category in self.categories],
+                "rounds": [round.json_model for round in self.rounds],
          }
 
     @hybrid_property
