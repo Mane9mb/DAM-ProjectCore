@@ -270,4 +270,70 @@ if __name__ == "__main__":
 
     db_session.add(round)
     db_session.commit()
+    matches = []
+    for p in range(1, 33, 8):
+        match = Match(
+            couple1_player1_id=p,
+            couple1_player2_id=p + 1,
+            couple2_player1_id=p + 2,
+            couple2_player2_id=p + 3,
+            set1=random.choice(set_results),
+            set2=random.choice(set_results)
+        )
+        db_session.add(match)
+        matches.append(match)
+
+    round = Round(
+        category_id=1,
+        tournament_id=3,
+        id=2,
+        matches=matches
+    )
+
+    db_session.add(round)
+    db_session.commit()
+    matches = []
+    for p in range(1, 33, 16):
+        match = Match(
+            couple1_player1_id=p,
+            couple1_player2_id=p + 1,
+            couple2_player1_id=p + 2,
+            couple2_player2_id=p + 3,
+            set1=random.choice(set_results),
+            set2=random.choice(set_results)
+        )
+        db_session.add(match)
+        matches.append(match)
+
+    round = Round(
+        category_id=1,
+        tournament_id=3,
+        id=3,
+        matches=matches
+    )
+
+    db_session.add(round)
+    db_session.commit()
+    matches = []
+    for p in range(1, 33, 32):
+        match = Match(
+            couple1_player1_id=p,
+            couple1_player2_id=p + 1,
+            couple2_player1_id=p + 2,
+            couple2_player2_id=p + 3,
+            set1=random.choice(set_results),
+            set2=random.choice(set_results)
+        )
+        db_session.add(match)
+        matches.append(match)
+
+    round = Round(
+        category_id=1,
+        tournament_id=3,
+        id=4,
+        matches=matches
+    )
+
+    db_session.add(round)
+    db_session.commit()
     db_session.close()
