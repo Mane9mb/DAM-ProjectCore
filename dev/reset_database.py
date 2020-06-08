@@ -104,10 +104,10 @@ if __name__ == "__main__":
     # noinspection PyArgumentList
     user_2 = User(
         created_at=datetime.datetime(2020, 1, 1, 0, 1, 1),
-        username="user2",
-        email="user2@gmail.com",
-        name="user",
-        surname="two",
+        username="manelmoreno",
+        email="manelmoreno@gmail.com",
+        name="manel",
+        surname="moreno",
         phone="63812910",
         rol=RolEnum.player,
         birthdate=datetime.datetime(2017, 1, 1),
@@ -117,8 +117,9 @@ if __name__ == "__main__":
         prefsmash= SmashEnum.globo,
         club="Club Tennis Manresa"
     )
-    user_2.set_password("r45tgt")
+    user_2.set_password("manel")
     user_2.tokens.append(UserToken(token="0a821f8ce58965eadc5ef884cf6f7ad99e0e7f58f429f584b2"))
+
 
     db_session.add(user_admin)
     db_session.add(player_1)
